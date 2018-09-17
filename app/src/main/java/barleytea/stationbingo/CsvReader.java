@@ -1,3 +1,5 @@
+package barleytea.stationbingo;
+
 import android.content.Context;
 import android.content.res.AssetManager;
 

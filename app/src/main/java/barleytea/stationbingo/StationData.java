@@ -1,3 +1,5 @@
+package barleytea.stationbingo;
+
 public class StationData {
     private String stationCd;
     private String stationGlobalCd;
