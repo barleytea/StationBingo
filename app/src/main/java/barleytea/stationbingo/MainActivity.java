@@ -61,26 +61,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
         setView.setText(selected);
-
-        setStationNameOnView(selected);
-    }
-
-    private void setStationNameOnView(String initial) {
-        CsvReader parser = new CsvReader();
-        parser.reader(getApplicationContext());
-
-        StationSelector stationSelector = new StationSelector(parser.objects);
-        TextView setStationNameView = findViewById(R.id.station_name);
-        TextView setStationNameKanaView = findViewById(R.id.station_name_kana);
-
-        StationData selectedStationData = stationSelector.selectStation(initial);
-        if (selectedStationData != null) {
-            setStationNameView.setText(selectedStationData.getStationName());
-            setStationNameKanaView.setText(selectedStationData.getStationNameKana());
-        } else {
-            setStationNameView.setText("no stations found");
-            setStationNameKanaView.setText("no stations found");
-        }
     }
 
     private List<String> getSelectableAlphabets() {
