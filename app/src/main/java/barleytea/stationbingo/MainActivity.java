@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         // Initial Data Insert
         final ContentValues values = new ContentValues();
         final SQLiteDatabase writer = dbHelper.getWritableDatabase();
-        for (final String alphabet : alphabetSet) {
+        for (final String alphabet : Constants.ALPHABET_SET) {
             values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET, alphabet);
             values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET_USED, 0);
             writer.insert(DBContract.DBTable.TABLE_NAME, null, values);
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         setStationNameOnView(selected);
     }
 
-    private void setStationNameOnView(String initial) {
+    private boolean setStationNameOnView(String initial) {
         CsvReader parser = new CsvReader();
         parser.reader(getApplicationContext());
 
@@ -74,12 +74,14 @@ public class MainActivity extends AppCompatActivity {
         TextView setStationNameKanaView = findViewById(R.id.station_name_kana);
 
         StationData selectedStationData = stationSelector.selectStation(initial);
-        if (selectedStationData != null) {
-            setStationNameView.setText(selectedStationData.getStationName());
-            setStationNameKanaView.setText(selectedStationData.getStationNameKana());
-        } else {
+        if (selectedStationData == null) {
             setStationNameView.setText("no stations found");
             setStationNameKanaView.setText("no stations found");
+            return false;
+        } else {
+            setStationNameView.setText(selectedStationData.getStationName());
+            setStationNameKanaView.setText(selectedStationData.getStationNameKana());
+            return true;
         }
     }
 
@@ -131,26 +133,6 @@ public class MainActivity extends AppCompatActivity {
         setView.setText("");
     }
 
-    private static Set<String> alphabetSet = new HashSet<>(
-            Arrays.asList(
-                    "あ","い","う","え","お",
-                    "か","き","く","け","こ",
-                    "さ","し","す","せ","そ",
-                    "た","ち","つ","て","と",
-                    "な","に","ぬ","ね","の",
-                    "は","ひ","ふ","へ","ほ",
-                    "ま","み","む","め","も",
-                    "や","ゆ","よ",
-                    "ら","り","る","れ","ろ",
-                    "わ",
-                    "が","ぎ","ぐ","げ","ご",
-                    "ざ","じ","ず","ぜ","ぞ",
-                    "だ","ぢ","づ","で","ど",
-                    "ば","び","ぶ","べ","ぼ",
-                    "ぱ","ぴ","ぷ","ぺ","ぽ"
-            )
-    );
-
     @Override
     protected void onDestroy() {
         if(dbHelper != null) {
@@ -158,5 +140,4 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
-
 }
