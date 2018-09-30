@@ -95,12 +95,17 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        clearAlphabetText(view);
+        clearAlphabetText();
     }
 
-    private void clearAlphabetText(View view) {
-        TextView setView = findViewById(R.id.alphabet_text);
-        setView.setText("");
+    private void clearAlphabetText() {
+        TextView setViewAlp = findViewById(R.id.alphabet_text);
+        TextView setViewStationName = findViewById(R.id.station_name);
+        TextView setViewStationNameKana = findViewById(R.id.station_name_kana);
+
+        setViewAlp.setText("");
+        setViewStationName.setText("");
+        setViewStationNameKana.setText("");
     }
 
     @Override
