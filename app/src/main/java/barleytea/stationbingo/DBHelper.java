@@ -20,7 +20,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String SQL_DELETE_UNNECESSARY_ALPHABETS =
             "DELETE FROM " + DBContract.DBTable.TABLE_NAME +
             " WHERE " + DBContract.DBTable.COLUMN_NAME_ALPHABET + " NOT IN (" +
-                    repeat("?", Constants.ALPHABET_SET.size()) + ")";
+                    StringUtils.repeat("?", Constants.ALPHABET_SET.size()) + ")";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -47,9 +47,5 @@ public class DBHelper extends SQLiteOpenHelper {
     private void deleteUnnecessaryAlphabetsFromDB(SQLiteDatabase db) {
         db.execSQL(SQL_DELETE_UNNECESSARY_ALPHABETS,
                 Constants.ALPHABET_SET.toArray(new String[Constants.ALPHABET_SET.size()]));
-    }
-
-    public static String repeat(String str, int n) {
-        return IntStream.range(0, n).mapToObj(i -> str).collect(Collectors.joining(","));
     }
 }

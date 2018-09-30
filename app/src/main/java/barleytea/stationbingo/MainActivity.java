@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,21 +25,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DBHelper(getApplicationContext());
-        // Initial Data Insert
-        final ContentValues values = new ContentValues();
-        final SQLiteDatabase writer = dbHelper.getWritableDatabase();
-        for (final String alphabet : Constants.ALPHABET_SET) {
-            values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET, alphabet);
-            values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET_USED, 0);
-            writer.insert(DBContract.DBTable.TABLE_NAME, null, values);
-        }
+        DBUtil.write(getApplicationContext(), db -> {
+            StationBingoModel.createTable(db);
+            return true;
+        });
     }
 
     public void extractAlphabet(View view) {
         TextView setView = findViewById(R.id.alphabet_text);
-
-        final SQLiteDatabase writer = dbHelper.getWritableDatabase();
         List<String> selectableAlphabets = getSelectableAlphabets();
 
         if (selectableAlphabets.size() == 0) {
@@ -47,22 +41,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Collections.shuffle(selectableAlphabets);
-        final String selected = selectableAlphabets.get(0);
+        final String selectionArg = selectableAlphabets.get(0);
 
-        ContentValues updateValues = new ContentValues();
-        updateValues.put(DBContract.DBTable.COLUMN_NAME_ALPHABET_USED, 1);
-        String updateSelection = DBContract.DBTable.COLUMN_NAME_ALPHABET + " = ?";
-        String[] updateSelectionArgs = {selected};
-        writer.update(
-                DBContract.DBTable.TABLE_NAME,
-                updateValues,
-                updateSelection,
-                updateSelectionArgs
-        );
+        final String selection = DBContract.DBTable.COLUMN_NAME_ALPHABET + " = ?";
+        final String updateValue = "1";
+        DBUtil.write(getApplicationContext(), db -> {
+            StationBingoModel.update(db, selection, selectionArg, updateValue);
+            return true;
+        });
 
-        setView.setText(selected);
-
-        setStationNameOnView(selected);
+        setView.setText(selectionArg);
+        setStationNameOnView(selectionArg);
     }
 
     private boolean setStationNameOnView(String initial) {
@@ -86,45 +75,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<String> getSelectableAlphabets() {
-        final List<String> res = new ArrayList<>();
-        final SQLiteDatabase reader = dbHelper.getReadableDatabase();
-        final String[] projection = {
-                DBContract.DBTable.COLUMN_NAME_ALPHABET
-        };
+        final String selectionArg = "0";
         final String selection = DBContract.DBTable.COLUMN_NAME_ALPHABET_USED + " = ?";
-        final String[] selectionArgs = {"0"};
-        final String sortOrder = DBContract.DBTable.COLUMN_NAME_ALPHABET + " DESC";
-        final Cursor cursor = reader.query(
-                DBContract.DBTable.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-        );
-        cursor.moveToFirst();
-        while (cursor.moveToNext()) {
-            String alphabet = cursor.getString(cursor.getColumnIndex(DBContract.DBTable.COLUMN_NAME_ALPHABET));
-            res.add(alphabet);
-        }
-        cursor.close();
+        final List<String> res =
+                DBUtil.read(getApplicationContext(), db -> StationBingoModel.list(db, selection, selectionArg))
+                        .stream()
+                        .map(x -> x.alphabet)
+                        .collect(Collectors.toList());
         return res;
     }
 
     public void clearHistory(View view) {
-        final SQLiteDatabase writer = dbHelper.getWritableDatabase();
+        final String updateValue = "0";
+        final String updateSelection = DBContract.DBTable.COLUMN_NAME_ALPHABET_USED + " = ?";
+        final String updateSelectionArg = "1";
 
-        ContentValues updateValues = new ContentValues();
-        updateValues.put(DBContract.DBTable.COLUMN_NAME_ALPHABET_USED, 0);
-        String updateSelection = DBContract.DBTable.COLUMN_NAME_ALPHABET_USED + " = ?";
-        String[] updateSelectionArgs = {"1"};
-        writer.update(
-                DBContract.DBTable.TABLE_NAME,
-                updateValues,
-                updateSelection,
-                updateSelectionArgs
-        );
+        DBUtil.write(getApplicationContext(), db -> {
+            StationBingoModel.update(db, updateSelection, updateSelectionArg, updateValue);
+            return true;
+        });
+
         clearAlphabetText(view);
     }
 
