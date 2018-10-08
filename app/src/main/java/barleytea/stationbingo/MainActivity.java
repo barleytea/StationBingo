@@ -10,30 +10,49 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import icepick.Icepick;
+import icepick.State;
 
 public class MainActivity extends AppCompatActivity {
 
     private DBHelper dbHelper = null;
+    private TextView setViewInitialString;
+    private TextView setStationNameView;
+    private TextView setStationNameKanaView;
+
+    @State CharSequence initialString = null;
+    @State CharSequence stationName = null;
+    @State CharSequence stationNameKana = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Icepick.restoreInstanceState(this, savedInstanceState);
+
+        setViewInitialString = findViewById(R.id.alphabet_text);
+        setStationNameView = findViewById(R.id.station_name);
+        setStationNameKanaView = findViewById(R.id.station_name_kana);
+
+        setViewInitialString.setText(initialString);
+        setStationNameView.setText(stationName);
+        setStationNameKanaView.setText(stationNameKana);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+        initialString = setViewInitialString.getText();
+        stationName = setStationNameView.getText();
+        stationNameKana = setStationNameKanaView.getText();
         Icepick.saveInstanceState(this, outState);
     }
 
     public void extractAlphabet(View view) {
-        TextView setView = findViewById(R.id.alphabet_text);
         List<String> selectableAlphabets = getSelectableAlphabets();
 
         if (selectableAlphabets.size() == 0) {
-            setView.setText("You have completed BINGO!");
+            setViewInitialString.setText("You have completed BINGO!");
             return;
         }
 
@@ -47,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        setView.setText(selectionArg);
+        initialString = selectionArg;
+        setViewInitialString.setText(selectionArg);
+
         setStationNameOnView(selectionArg);
     }
 
@@ -56,8 +77,7 @@ public class MainActivity extends AppCompatActivity {
         parser.reader(getApplicationContext());
 
         StationSelector stationSelector = new StationSelector(parser.objects);
-        TextView setStationNameView = findViewById(R.id.station_name);
-        TextView setStationNameKanaView = findViewById(R.id.station_name_kana);
+
 
         StationData selectedStationData = stationSelector.selectStation(initial);
         if (selectedStationData == null) {
@@ -65,8 +85,10 @@ public class MainActivity extends AppCompatActivity {
             setStationNameKanaView.setText("no stations found");
             return false;
         } else {
-            setStationNameView.setText(selectedStationData.getStationName());
-            setStationNameKanaView.setText(selectedStationData.getStationNameKana());
+            stationName = selectedStationData.getStationName();
+            stationNameKana = selectedStationData.getStationNameKana();
+            setStationNameView.setText(stationName);
+            setStationNameKanaView.setText(stationNameKana);
             return true;
         }
     }
