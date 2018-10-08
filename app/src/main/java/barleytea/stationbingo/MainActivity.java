@@ -1,20 +1,15 @@
 package barleytea.stationbingo;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import icepick.Icepick;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,11 +19,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Icepick.restoreInstanceState(this, savedInstanceState);
+    }
 
-        DBUtil.write(getApplicationContext(), db -> {
-            StationBingoModel.createTable(db);
-            return true;
-        });
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Icepick.saveInstanceState(this, outState);
     }
 
     public void extractAlphabet(View view) {
