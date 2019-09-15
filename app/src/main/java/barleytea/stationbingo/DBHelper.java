@@ -1,9 +1,11 @@
 package barleytea.stationbingo;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -29,7 +31,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(SQL_CREATE_TABLE);
-        deleteUnnecessaryAlphabetsFromDB(db);
+        insertInitialData(db);
     }
 
     @Override
@@ -47,5 +49,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private void deleteUnnecessaryAlphabetsFromDB(SQLiteDatabase db) {
         db.execSQL(SQL_DELETE_UNNECESSARY_ALPHABETS,
                 Constants.ALPHABET_SET.toArray(new String[Constants.ALPHABET_SET.size()]));
+    }
+
+    private void insertInitialData(SQLiteDatabase db) {
+        final ContentValues values = new ContentValues();
+        Constants.ALPHABET_SET.forEach(alphabet -> {
+            values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET, alphabet);
+            values.put(DBContract.DBTable.COLUMN_NAME_ALPHABET_USED, 0);
+            db.insert(DBContract.DBTable.TABLE_NAME, null, values);
+        });
     }
 }

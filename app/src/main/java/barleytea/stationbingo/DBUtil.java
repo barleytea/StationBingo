@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class DBUtil {
     public static <T> T read(Context context, DBProcess<T> handler) {
-        T obj = null;
+        T obj;
         SQLiteDatabase db = new DBHelper(context).getReadableDatabase();
         try {
             obj = handler.process(db);
